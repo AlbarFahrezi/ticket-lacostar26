@@ -114,6 +114,28 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
  .stub{gap:8px}
  .stub::after{width:34px;height:22px}
 }
+/* stok */
+.stk{display:block;width:fit-content;max-width:100%;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin:-4px 0 12px;padding:3px 11px;border:1.5px solid currentColor;border-radius:999px;opacity:.95}
+.stk::before{content:"\25CF";margin-right:7px;font-size:.7em;vertical-align:middle}
+.stk:empty{display:none}
+.ticket.d1{--lowc:#b3261e}.ticket.d2{--lowc:#ffd25a}.ticket.bd{--lowc:#ff9a8a}
+.stk.low{color:var(--lowc);opacity:1}
+.ticket .qty button:disabled{opacity:.35;cursor:not-allowed}
+.ticket.soldout{--tk:#aeb4cc;--tks:#aeb4cc;--dot:rgba(255,255,255,.05);background:linear-gradient(135deg,#4a5170,#262b44);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)}
+.ticket.soldout .stub{background:rgba(0,0,0,.25)}
+.ticket.soldout h2{background:none;-webkit-text-fill-color:currentColor;color:var(--tk)}
+.ticket.soldout .main-t h2::before{-webkit-text-fill-color:currentColor;color:var(--tk)}
+.ticket.soldout .price{text-decoration:line-through;opacity:.6}
+.ticket.soldout .price::after{display:none}
+.ticket.soldout .stk{color:#ff6b7a;opacity:1}
+.ticket.soldout::before{animation:none}
+.ticket.soldout::after{content:"SOLD OUT";position:absolute;z-index:3;left:calc((100% - var(--stub))/2);top:50%;transform:translate(-50%,-50%) rotate(-9deg);padding:6px 20px;border:4px solid #ff4d5e;border-radius:12px;color:#ff4d5e;background:rgba(11,18,48,.82);font-size:2.3rem;font-weight:800;letter-spacing:.18em;white-space:nowrap;box-shadow:0 0 0 2px rgba(11,18,48,.6),0 8px 24px rgba(0,0,0,.5);pointer-events:none}
+@media(hover:hover){.ticket.soldout:hover{transform:none}}
+@media(max-width:520px){.ticket.soldout::after{font-size:1.35rem;padding:4px 12px;border-width:3px;letter-spacing:.12em}}
+/* batas per hari */
+.lim{width:fit-content;max-width:100%;margin-top:10px;padding:6px 12px;border-radius:10px;background:#b3261e;color:#fff;-webkit-text-fill-color:#fff;font-size:.78rem;font-weight:700;line-height:1.35}
+.lim:empty{display:none}
+.lim-note{margin:-14px 0 22px;color:#ffd25a;font-size:.88rem;font-weight:700}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -124,6 +146,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 <section id="v-shop">
   <h1>Beli tiket Lacostar'26<br>Day 1 &amp; Day 2</h1>
   <p class="sub">Pilih jumlah tiket. Mau datang dua hari? Ambil Bundle Package (Day 1 + Day 2) biar lebih hemat. </p>
+  <p class="lim-note" id="limnote"></p>
   <div class="grid" id="products"></div>
 </section>
 
@@ -184,6 +207,7 @@ const QRIS_SRC='qris.jpg';          // isi dengan gambar QRIS (URL atau data:ima
 const SHEET_URL='https://script.google.com/macros/s/AKfycbylcF3eYedWsJpHr3XOpjIP99Cvk6X_9B9kyRrC2CLu2KxCPrUsOkexTi7woC8uLJWjoQ/exec';  // URL Web App Apps Script (berakhiran /exec)
 const QRIS_PAYLOAD="00020101021126610014COM.GO-JEK.WWW01189360091431043864150210G1043864150303UMI51440014ID.CO.QRIS.WWW0215ID10243350654950303UMI5204899953033605802ID5925LACOSTAR'26, Digital & Kr6006GRESIK61056111162070703A016304F5BC"; // isi teks QRIS statis agar nominal otomatis terisi; kosongkan ("") untuk pakai gambar saja
 const WA_NUMBER='62895405042924';   // nomor WhatsApp penjual, format 62...
+const MAX_PER_DAY=10;   // maksimal tiket per HARI per pesanan (Bundle dihitung 1 untuk Day 1 + 1 untuk Day 2). Samakan dengan MAX_QTY di Code.gs
 // =================================================
 const rp=n=>'Rp '+n.toLocaleString('id-ID');
 const $=id=>document.getElementById(id);
@@ -191,17 +215,40 @@ const cart={d1:0,d2:0,bd:0};let ORDER=null,BUYER=null;
 const total=()=>PRODUCTS.reduce((s,p)=>s+p.price*cart[p.id],0);
 const qty=()=>PRODUCTS.reduce((s,p)=>s+cart[p.id],0);
 
+// ===== STOK (dari server). Bundle memotong stok Day 1 DAN Day 2 =====
+let STOCK=null;   // sisa stok dari server {d1,d2}; null = belum dimuat / tanpa SHEET_URL (tanpa batas)
+const avail=id=>{if(!STOCK)return Infinity;const a1=STOCK.d1-cart.d1-cart.bd,a2=STOCK.d2-cart.d2-cart.bd;return id==='d1'?a1:id==='d2'?a2:Math.min(a1,a2)};
+const soldOut=p=>{if(!STOCK)return false;return p.id==='d1'?STOCK.d1<=0:p.id==='d2'?STOCK.d2<=0:Math.min(STOCK.d1,STOCK.d2)<=0};
+const stk=p=>{const a=avail(p.id);return a===Infinity?'':soldOut(p)?'Terjual habis':a<=0?'Semua stok ada di keranjangmu':(a<=10?'Tinggal ':'Sisa ')+a+(p.id==='bd'?' paket':' tiket')};
+const stkLow=p=>{const a=avail(p.id);return a!==Infinity&&a<=10};
+function clampCart(){if(!STOCK)return;for(const id of ['bd','d1','d2'])while(cart[id]>0&&(STOCK.d1<cart.d1+cart.bd||STOCK.d2<cart.d2+cart.bd))cart[id]--}
+async function loadStock(){
+ if(!SHEET_URL||ORDER)return;
+ try{
+  const j=await api({action:'stock'});STOCK={d1:j.d1,d2:j.d2};clampCart();renderProducts();renderBar();
+  if(!$('v-pay').classList.contains('hide')){if(qty())renderCart();else show('shop')}
+ }catch(e){}
+}
+
+// ===== BATAS PEMBELIAN PER HARI (peringatan tampil di tiket) =====
+let NOTE=null,NOTE_T=null;
+const atMax=id=>{const u1=cart.d1+cart.bd,u2=cart.d2+cart.bd;return id==='d1'?u1>=MAX_PER_DAY:id==='d2'?u2>=MAX_PER_DAY:(u1>=MAX_PER_DAY||u2>=MAX_PER_DAY)};
+const limMsg=p=>NOTE===p.id?`Maaf, batas pembelian maksimal ${MAX_PER_DAY} tiket per hari.${p.id==='bd'?' Bundle dihitung 1 tiket Day 1 + 1 tiket Day 2.':''}`:'';
+function warn(id){NOTE=id;clearTimeout(NOTE_T);NOTE_T=setTimeout(()=>{NOTE=null;renderProducts()},4500)}
+
 function renderProducts(){
  $('products').innerHTML=PRODUCTS.map(p=>`
- <article class="ticket ${p.cls}">
+ <article class="ticket ${p.cls}${soldOut(p)?' soldout':''}">
   <div class="main-t">
    <h2>${p.name}</h2><p>${p.date}</p><p>${p.desc}</p>
    <div class="price">${rp(p.price)}</div>
+   <div class="stk${stkLow(p)?' low':''}">${stk(p)}</div>
    <div class="qty">
     <button data-m="${p.id}" aria-label="Kurangi ${p.name}">−</button><b id="q-${p.id}">${cart[p.id]}</b>
-    <button data-p="${p.id}" aria-label="Tambah ${p.name}">+</button>
-    <span class="add" style="background:none;padding:0;color:var(--dark);font-size:.9rem">tiket di keranjang</span>
+    <button data-p="${p.id}" aria-label="Tambah ${p.name}"${avail(p.id)<=0?' disabled':''}>+</button>
+    <span class="add" style="background:none;padding:0;color:var(--dark);font-size:.9rem"></span>
    </div>
+   <div class="lim">${limMsg(p)}</div>
   </div>
   <div class="stub"><span>${(p.tag||p.name).toUpperCase()}</span></div>
  </article>`).join('');
@@ -263,12 +310,15 @@ async function api(body){
 $('products').addEventListener('click',e=>{
  const t=e.target.closest('button');if(!t)return;
  const d=t.dataset;
- if(d.p){cart[d.p]++}
+ if(d.p){if(avail(d.p)>0){if(atMax(d.p))warn(d.p);else cart[d.p]++}}
  if(d.m){cart[d.m]=Math.max(0,cart[d.m]-1)}
  renderProducts();renderBar();
 });
 $('go').onclick=()=>{resetPay();renderCart();show('pay')};
-$('back').onclick=()=>{resetPay();show('shop')};
+$('back').onclick=()=>{
+ const o=ORDER;resetPay();show('shop');
+ if(o&&SHEET_URL)api({action:'cancel',code:o.code}).catch(()=>{}).then(loadStock);else loadStock();
+};
 $('cart').addEventListener('click',e=>{
  const r=e.target.dataset.r;if(!r||ORDER)return;cart[r]=0;
  if(!qty()){renderBar();show('shop');return}
@@ -285,7 +335,7 @@ $('mk').onclick=async()=>{
   if(SHEET_URL){const j=await api({action:'create',nama:nm,wa,day1:cart.d1,day2:cart.d2,bundle:cart.bd});ORDER={code:j.code,total:j.total}}
   else ORDER={code:'TKT-'+Date.now().toString(36).toUpperCase().slice(-6),total:total()};
  }catch(e){
-  $('err').textContent='Gagal membuat pesanan: '+e.message;b.disabled=false;b.textContent='Buat pesanan & tampilkan QRIS';return;
+  $('err').textContent='Gagal membuat pesanan: '+e.message;b.disabled=false;b.textContent='Buat pesanan & tampilkan QRIS';if(/stok/i.test(e.message))loadStock();return;
  }
  BUYER={nm,wa};
  $('nm').disabled=$('wa').disabled=true;$('cart').classList.add('locked');
@@ -306,10 +356,12 @@ $('paid').onclick=async()=>{
  $('wal').href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
  show('done');
 };
-$('again').onclick=()=>{cart.d1=cart.d2=cart.bd=0;$('nm').value=$('wa').value='';resetPay();renderProducts();renderBar();show('shop')};
+$('again').onclick=()=>{cart.d1=cart.d2=cart.bd=0;$('nm').value=$('wa').value='';resetPay();renderProducts();renderBar();show('shop');loadStock()};
 
 $('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS a.n. Yudi">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
 renderProducts();renderBar();
+$('limnote').textContent='Maksimal pembelian '+MAX_PER_DAY+' tiket per hari.';
+loadStock();setInterval(loadStock,60000);
 </script>
 </body>
 </html>

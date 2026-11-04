@@ -16,14 +16,14 @@ h1{font-size:clamp(2.2rem,7vw,4rem);line-height:1;margin:.2em 0 .3em;font-weight
 .sub{color:var(--mute);max-width:52ch;margin:0 0 28px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:720px){.grid{grid-template-columns:1fr}}
-.ticket{position:relative;border-radius:18px;color:var(--dark);display:flex;overflow:hidden;min-height:230px}
+.ticket{--stub:96px;--n:34px;position:relative;border-radius:18px;color:var(--dark);display:flex;overflow:hidden;min-height:230px}
 .ticket.d1{background:var(--d1)}.ticket.d2{background:var(--d2)}
 .ticket.bd{background:linear-gradient(135deg,var(--d1),var(--d2));grid-column:1/-1}
 .main-t{flex:1;padding:20px 18px}
-.stub{width:96px;border-left:3px dashed var(--dark);display:flex;align-items:center;justify-content:center;padding:10px;position:relative}
+.stub{width:var(--stub);border-left:3px dashed var(--dark);display:flex;align-items:center;justify-content:center;padding:10px;position:relative}
 .stub span{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:2.4rem;letter-spacing:.04em}
-.ticket::before,.ticket::after{content:"";position:absolute;right:79px;width:34px;height:34px;border-radius:50%;background:var(--bg)}
-.ticket::before{top:-17px}.ticket::after{bottom:-17px}
+.ticket::before,.ticket::after{content:"";position:absolute;right:calc(var(--stub) - 1.5px - var(--n)/2);width:var(--n);height:var(--n);border-radius:50%;background:var(--bg)}
+.ticket::before{top:calc(var(--n)/-2)}.ticket::after{bottom:calc(var(--n)/-2)}
 .main-t h2{margin:0;font-size:2rem;font-weight:800;line-height:1}
 .main-t p{margin:.4em 0 0;font-size:.95rem}
 .price{font-weight:800;font-size:1.5rem;margin:14px 0 10px}
@@ -32,8 +32,15 @@ h1{font-size:clamp(2.2rem,7vw,4rem);line-height:1;margin:.2em 0 .3em;font-weight
 .qty b{min-width:24px;text-align:center;font-size:1.2rem}
 .add{margin-left:auto;background:var(--dark);color:var(--ink);border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2px}
-.bar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:14px;justify-content:center}
-.bar .t{font-weight:800}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.bar-in{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;max-width:944px;margin:0 auto}
+.info{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+#count{color:var(--mute);font-size:.85rem}
+.bar .t{font-weight:800;font-size:1.25rem;white-space:nowrap}
+.bar .btn{white-space:nowrap}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.actions .btn{text-decoration:none;text-align:center;flex:1 1 auto}
+.row>span:last-child{white-space:nowrap}
 .btn{background:var(--d1);color:var(--dark);border:0;border-radius:999px;padding:12px 22px;font:inherit;font-weight:800;cursor:pointer}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.alt{background:transparent;color:var(--ink);border:2px solid var(--mute)}
@@ -53,6 +60,23 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 .ok{color:var(--ok)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:720px){.two{grid-template-columns:1fr}}
+@media(max-width:520px){
+ main{padding:18px 14px 110px}
+ h1{font-size:2.3rem}
+ .sub{margin-bottom:20px}
+ .grid{gap:14px}
+ .ticket{--stub:62px;--n:26px;min-height:0}
+ .stub span{font-size:1.5rem}
+ .main-t{padding:16px 14px}
+ .main-t h2{font-size:1.6rem}
+ .main-t p{font-size:.88rem}
+ .price{font-size:1.3rem;margin:10px 0 8px}
+ .qty button{width:44px;height:44px}
+ .add{display:none}
+ .card{padding:16px}
+ .qris{padding:12px}
+ .actions .btn{width:100%}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -101,23 +125,23 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
     <p>Kode pesanan: <b id="code"></b></p>
     <div id="sum"></div>
     <p class="sub">Kirim bukti pembayaran ke penjual agar tiket dikonfirmasi.</p>
-    <a id="wal" class="btn" style="display:inline-block;text-decoration:none" target="_blank" rel="noopener">Kirim bukti via WhatsApp</a>
-    <button class="btn alt" id="again" style="margin-left:8px">Pesan lagi</button>
+    <div class="actions"><a id="wal" class="btn" target="_blank" rel="noopener">Kirim bukti via WhatsApp</a>
+    <button class="btn alt" id="again">Pesan lagi</button></div>
   </div>
 </section>
 </main>
 
-<div class="bar" id="bar">
-  <span id="count">Keranjang kosong</span><span class="t" id="tot"></span>
+<div class="bar" id="bar"><div class="bar-in">
+  <div class="info"><span id="count">Keranjang kosong</span><span class="t" id="tot"></span></div>
   <button class="btn" id="go" disabled>Lanjut bayar</button>
-</div>
+</div></div>
 
 <script>
 // ====== PENGATURAN (ganti sesuai kebutuhan) ======
 const PRODUCTS=[
  {id:'d1',name:'Day 1',date:'Sabtu, tanggal acara',desc:'Akses masuk penuh hari pertama.',price:20000,cls:'d1'},
  {id:'d2',name:'Day 2',date:'Minggu, tanggal acara',desc:'Akses masuk penuh hari kedua.',price:20000,cls:'d2'},
- {id:'bd',name:'Bundle Package',tag:'BUNDLE',date:'LACOSTAR BUNDLE PACKAGE',desc:'Day 1 + Day 2 dalam satu tiket, lebih hemat dibanding beli terpisah.',price:35000 ,cls:'bd'}
+ {id:'bd',name:'Bundle Package',tag:'BUNDLE',date:'LACOSTAR BUNDLE PACKAGE',desc:'Day 1 + Day 2 dalam satu tiket, lebih hemat dibanding beli terpisah.',price:35000,cls:'bd'}
 ];
 const QRIS_SRC='qris.jpg';          // isi dengan gambar QRIS (URL atau data:image/...)
 const SHEET_URL='https://script.google.com/macros/s/AKfycbylcF3eYedWsJpHr3XOpjIP99Cvk6X_9B9kyRrC2CLu2KxCPrUsOkexTi7woC8uLJWjoQ/exec';  // URL Web App Apps Script (berakhiran /exec)

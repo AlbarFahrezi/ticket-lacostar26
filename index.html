@@ -77,6 +77,43 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
  .qris{padding:12px}
  .actions .btn{width:100%}
 }
+
+/* ===== DESAIN TIKET (tambahan) ===== */
+#products{filter:drop-shadow(0 10px 14px rgba(0,0,0,.5))}
+.ticket{transition:transform .25s ease}
+@media(hover:hover){.ticket:hover{transform:translateY(-4px)}}
+.ticket{color:var(--tk)}
+.ticket.d1{--tk:#0b1230;--tks:#0b1230;--dot:rgba(0,0,0,.07);background:linear-gradient(135deg,#fff0b0 0%,#ffd34d 30%,#ffc93c 55%,#e6a61f 100%);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45)}
+.ticket.d2{--tk:#ffffff;--tks:#ffffff;--dot:rgba(255,255,255,.12);background:linear-gradient(135deg,#5b86ff 0%,#2f55e0 40%,#16277a 100%);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35)}
+.ticket.bd{--tk:#ffd25a;--tks:#0b1230;--dot:rgba(255,210,90,.10);background:linear-gradient(135deg,#1f3280 0%,#121c4d 55%,#0b1230 100%);box-shadow:inset 0 0 0 1.5px rgba(255,210,90,.7)}
+.ticket::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(110deg,transparent 38%,rgba(255,255,255,.30) 50%,transparent 62%) 160% 0/250% 100% no-repeat,radial-gradient(circle at 1px 1px,var(--dot) 1.2px,transparent 1.7px) 0 0/12px 12px;animation:tkshine 7s ease-in-out infinite}
+.ticket.d2::before{animation-delay:1.2s}.ticket.bd::before{animation-delay:2.4s}
+@keyframes tkshine{0%,55%{background-position:160% 0,0 0}100%{background-position:-60% 0,0 0}}
+@media(prefers-reduced-motion:reduce){.ticket::before{animation:none}.ticket{transition:none}}
+.main-t{position:relative;z-index:1;padding-right:32px}
+.main-t::before{content:"";position:absolute;z-index:-1;inset:8px calc(var(--n)/2 + 6px) 8px 8px;border:1.5px solid currentColor;border-radius:12px;opacity:.22;pointer-events:none}
+.main-t::after{content:"\2605";position:absolute;z-index:-1;right:16px;bottom:-26px;font-size:8.5rem;line-height:1;opacity:.10;pointer-events:none}
+.main-t h2::before{content:"ADMIT ONE \00B7  LACOSTAR'26";display:block;font-size:.62rem;font-weight:700;letter-spacing:.22em;opacity:.7;margin-bottom:8px}
+.ticket.bd .main-t h2::before{content:"ADMIT TWO \00B7  2 DAYS PASS"}
+.ticket.bd h2{background:linear-gradient(180deg,#fff3c4,#ffd25a 55%,#e0a21a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ticket.bd .main-t h2::before{-webkit-text-fill-color:#ffd25a;color:#ffd25a}
+.ticket.bd .price::after{content:"BEST VALUE";display:inline-block;vertical-align:middle;margin-left:10px;padding:3px 9px;border-radius:999px;background:#ffd25a;color:#0b1230;font-size:.62rem;letter-spacing:.12em;font-weight:800}
+.ticket .qty button{border-color:var(--tk);color:var(--tk);background:rgba(255,255,255,.08);transition:transform .12s,background .12s}
+.ticket .qty button:hover{background:rgba(255,255,255,.28)}
+.ticket .qty button:active{transform:scale(.9)}
+.ticket .add{color:var(--tk)!important}
+.stub{z-index:1;flex-direction:column;gap:12px;color:var(--tks);border-left-color:var(--tks)}
+.ticket.d1 .stub{background:rgba(0,0,0,.06)}
+.ticket.d2 .stub{background:rgba(0,0,0,.18)}
+.ticket.bd .stub{background:linear-gradient(180deg,#ffe48a,#ffc93c 55%,#d9951a)}
+.stub::after{content:"";flex:none;width:46px;height:30px;opacity:.8;background:repeating-linear-gradient(90deg,currentColor 0 2px,transparent 2px 4px,currentColor 4px 5px,transparent 5px 8px,currentColor 8px 11px,transparent 11px 12px)}
+@media(max-width:520px){
+ .main-t{padding-right:26px}
+ .main-t::after{font-size:6rem;bottom:-18px}
+ .main-t h2::before{font-size:.55rem;margin-bottom:6px}
+ .stub{gap:8px}
+ .stub::after{width:34px;height:22px}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>

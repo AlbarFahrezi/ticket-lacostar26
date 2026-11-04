@@ -6,7 +6,7 @@
 <title>Tiket Festival – Day 1 & Day 2</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#1d1647;--panel:#2a2162;--ink:#f6f3ff;--mute:#b9b1e6;--d1:#ffc93c;--d2:#ff7a9c;--dark:#1d1647;--ok:#7be0a8;
+:root{--bg:#0b1230;--panel:#16204a;--ink:#f6f3ff;--mute:#aeb7e6;--d1:#ffc93c;--d2:#ff7a9c;--dark:#0b1230;--ok:#7be0a8;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
@@ -22,8 +22,8 @@ h1{font-size:clamp(2.2rem,7vw,4rem);line-height:1;margin:.2em 0 .3em;font-weight
 .main-t{flex:1;padding:20px 18px}
 .stub{width:var(--stub);border-left:3px dashed var(--dark);display:flex;align-items:center;justify-content:center;padding:10px;position:relative}
 .stub span{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:2.4rem;letter-spacing:.04em}
-.ticket::before,.ticket::after{content:"";position:absolute;right:calc(var(--stub) - 1.5px - var(--n)/2);width:var(--n);height:var(--n);border-radius:50%;background:var(--bg)}
-.ticket::before{top:calc(var(--n)/-2)}.ticket::after{bottom:calc(var(--n)/-2)}
+.ticket{-webkit-mask:radial-gradient(circle calc(var(--n)/2) at calc(100% - var(--stub) + 1.5px) 0,#0000 98%,#000),radial-gradient(circle calc(var(--n)/2) at calc(100% - var(--stub) + 1.5px) 100%,#0000 98%,#000);-webkit-mask-composite:source-in;mask:radial-gradient(circle calc(var(--n)/2) at calc(100% - var(--stub) + 1.5px) 0,#0000 98%,#000),radial-gradient(circle calc(var(--n)/2) at calc(100% - var(--stub) + 1.5px) 100%,#0000 98%,#000);mask-composite:intersect}
+body::before{content:"";position:fixed;left:50%;top:50%;width:min(100vmin,780px);height:min(100vmin,780px);transform:translate(-50%,-50%);border-radius:50%;background:url(logo-bg.jpg) center/cover no-repeat;opacity:.22;z-index:-1;pointer-events:none}
 .main-t h2{margin:0;font-size:2rem;font-weight:800;line-height:1}
 .main-t p{margin:.4em 0 0;font-size:.95rem}
 .price{font-weight:800;font-size:1.5rem;margin:14px 0 10px}
@@ -107,7 +107,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
       <div id="qrwrap" class="hide">
         <div class="qris">
           <div id="qrbox"></div>
-          <b>A.N. LACOSTAR'26, DIGITAL & KR</b>
+          <b>a.n. Yudi</b>
           <div id="qrtotal" style="font-size:1.3rem;font-weight:800"></div>
         </div>
         <p class="sub" id="qrhint" style="margin:14px 0">Bayar <b>persis sesuai total</b> (termasuk 3 digit terakhir sebagai kode unik), lalu tekan tombol di bawah.</p>
@@ -271,7 +271,7 @@ $('paid').onclick=async()=>{
 };
 $('again').onclick=()=>{cart.d1=cart.d2=cart.bd=0;$('nm').value=$('wa').value='';resetPay();renderProducts();renderBar();show('shop')};
 
-$('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS a.n. LACOSTAR'26, DIGITAL & KR">`:'<div class="ph">Taruh gambar QRIS LACOSTAR26 di sini (variabel QRIS_SRC)</div>';
+$('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS a.n. Yudi">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
 renderProducts();renderBar();
 </script>
 </body>

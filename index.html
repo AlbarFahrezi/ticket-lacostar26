@@ -107,7 +107,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
       <div id="qrwrap" class="hide">
         <div class="qris">
           <div id="qrbox"></div>
-          <b>a.n. Yudi</b>
+          <b>A.N. LACOSTAR'26, DIGITAL & KR</b>
           <div id="qrtotal" style="font-size:1.3rem;font-weight:800"></div>
         </div>
         <p class="sub" id="qrhint" style="margin:14px 0">Bayar <b>persis sesuai total</b> (termasuk 3 digit terakhir sebagai kode unik), lalu tekan tombol di bawah.</p>
@@ -271,7 +271,7 @@ $('paid').onclick=async()=>{
 };
 $('again').onclick=()=>{cart.d1=cart.d2=cart.bd=0;$('nm').value=$('wa').value='';resetPay();renderProducts();renderBar();show('shop')};
 
-$('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS a.n. Yudi">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
+$('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS a.n. LACOSTAR'26, DIGITAL & KR">`:'<div class="ph">Taruh gambar QRIS LACOSTAR26 di sini (variabel QRIS_SRC)</div>';
 renderProducts();renderBar();
 </script>
 </body>

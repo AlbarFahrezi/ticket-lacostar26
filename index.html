@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tiket Festival – Day 1 & Day 2</title>
+<title>TICKETS LACOSTAR'26</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0b1230;--panel:#16204a;--ink:#f6f3ff;--mute:#aeb7e6;--d1:#ffc93c;--d2:#ff7a9c;--dark:#0b1230;--ok:#7be0a8;
@@ -136,6 +136,18 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 .lim{width:fit-content;max-width:100%;margin-top:10px;padding:6px 12px;border-radius:10px;background:#b3261e;color:#fff;-webkit-text-fill-color:#fff;font-size:.78rem;font-weight:700;line-height:1.35}
 .lim:empty{display:none}
 .lim-note{margin:-14px 0 22px;color:#ffd25a;font-size:.88rem;font-weight:700}
+/* harga diskon (Bundle) */
+.ticket.bd .price.deal::after{display:none}
+.price.deal{position:relative;display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;width:fit-content;max-width:100%;margin:28px 0 12px;padding:15px 16px 11px;border:1.5px solid rgba(255,210,90,.5);border-radius:14px;background:linear-gradient(135deg,rgba(255,210,90,.18),rgba(255,210,90,.03));box-shadow:inset 0 0 18px rgba(255,210,90,.08),0 6px 18px rgba(0,0,0,.25)}
+.tab{position:absolute;top:-12px;left:14px;padding:4px 11px;border-radius:8px;background:linear-gradient(135deg,#ff5a6b,#d6243a);color:#fff;-webkit-text-fill-color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.14em;white-space:nowrap;box-shadow:0 3px 10px rgba(214,36,58,.5);animation:tkpulse 2.4s ease-in-out infinite}
+@keyframes tkpulse{0%,100%{box-shadow:0 3px 10px rgba(214,36,58,.45)}50%{box-shadow:0 3px 18px rgba(255,90,107,.9)}}
+@media(prefers-reduced-motion:reduce){.tab{animation:none}}
+.was{font-size:1rem;font-weight:700;color:#fff;opacity:.65;text-decoration:line-through;text-decoration-color:#ff5a6b;text-decoration-thickness:2.5px}
+.now{font-size:2.1rem;line-height:1;font-weight:800;letter-spacing:-.01em;background:linear-gradient(180deg,#fff3c4,#ffd25a 55%,#e0a21a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.save{padding:3px 10px;border-radius:999px;background:#ffd25a;color:#0b1230;-webkit-text-fill-color:#0b1230;font-size:.62rem;font-weight:800;letter-spacing:.1em;white-space:nowrap}
+.ticket.soldout .tab,.ticket.soldout .save,.ticket.soldout .was{display:none}
+.ticket.soldout .price.deal{background:none;border-color:transparent;box-shadow:none;padding:0;margin:14px 0 10px}
+@media(max-width:520px){.price.deal{margin:26px 0 10px;padding:14px 14px 10px;gap:4px 12px}.now{font-size:1.85rem}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -167,7 +179,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
       <div id="qrwrap" class="hide">
         <div class="qris">
           <div id="qrbox"></div>
-          <b>a.n. Yudi</b>
+          <b>A.N. LACOSTAR'26 DIGITAL & KR</b>
           <div id="qrtotal" style="font-size:1.3rem;font-weight:800"></div>
         </div>
         <p class="sub" id="qrhint" style="margin:14px 0">Bayar <b>persis sesuai total</b> (termasuk 3 digit terakhir sebagai kode unik), lalu tekan tombol di bawah.</p>
@@ -199,16 +211,16 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 <script>
 // ====== PENGATURAN (ganti sesuai kebutuhan) ======
 const PRODUCTS=[
- {id:'d1',name:'Day 1',date:'Sabtu, tanggal acara',desc:'Akses masuk penuh hari pertama.',price:20000,cls:'d1'},
- {id:'d2',name:'Day 2',date:'Minggu, tanggal acara',desc:'Akses masuk penuh hari kedua.',price:20000,cls:'d2'},
- {id:'bd',name:'Bundle Package',tag:'BUNDLE',date:'LACOSTAR BUNDLE PACKAGE',desc:'Day 1 + Day 2 dalam satu tiket, lebih hemat dibanding beli terpisah.',price:35000,cls:'bd'}
+ {id:'d1',name:'Day 1',date:'Sabtu, 14 November',desc:'Tingkat SMP/MTS/sederajat',price:20000,cls:'d1'},
+ {id:'d2',name:'Day 2',date:'Minggu, 15 November',desc:'Tingkat SMA/SMK/MA/sederajat',price:20000,cls:'d2'},
+ {id:'bd',name:' LACOSTAR26 BUNDLE PACKAGE',tag:'BUNDLE',date:'',desc:'Lebih HEMAT, sekali transaksi = bisa akses semua hari✨',price:35000,was:40000,cls:'bd'}
 ];
 const QRIS_SRC='qris.jpg';          // isi dengan gambar QRIS (URL atau data:image/...)
 const SHEET_URL='https://script.google.com/macros/s/AKfycbylcF3eYedWsJpHr3XOpjIP99Cvk6X_9B9kyRrC2CLu2KxCPrUsOkexTi7woC8uLJWjoQ/exec';  // URL Web App Apps Script (berakhiran /exec)
 const QRIS_PAYLOAD="00020101021126610014COM.GO-JEK.WWW01189360091431043864150210G1043864150303UMI51440014ID.CO.QRIS.WWW0215ID10243350654950303UMI5204899953033605802ID5925LACOSTAR'26, Digital & Kr6006GRESIK61056111162070703A016304F5BC"; // isi teks QRIS statis agar nominal otomatis terisi; kosongkan ("") untuk pakai gambar saja
 const WA_NUMBER='62895405042924';   // nomor WhatsApp penjual, format 62...
 const MAX_PER_DAY=10;   // maksimal tiket per HARI per pesanan (Bundle dihitung 1 untuk Day 1 + 1 untuk Day 2). Samakan dengan MAX_QTY di Code.gs
-// =================================================
+// =================================================qf
 const rp=n=>'Rp '+n.toLocaleString('id-ID');
 const $=id=>document.getElementById(id);
 const cart={d1:0,d2:0,bd:0};let ORDER=null,BUYER=null;
@@ -241,7 +253,7 @@ function renderProducts(){
  <article class="ticket ${p.cls}${soldOut(p)?' soldout':''}">
   <div class="main-t">
    <h2>${p.name}</h2><p>${p.date}</p><p>${p.desc}</p>
-   <div class="price">${rp(p.price)}</div>
+   <div class="price${p.was?' deal':''}">${p.was?`<span class="tab">&#10022; SPECIAL DISCOUNT</span><s class="was">${rp(p.was)}</s><span class="now">${rp(p.price)}</span><span class="save">HEMAT ${rp(p.was-p.price)}</span>`:rp(p.price)}</div>
    <div class="stk${stkLow(p)?' low':''}">${stk(p)}</div>
    <div class="qty">
     <button data-m="${p.id}" aria-label="Kurangi ${p.name}">−</button><b id="q-${p.id}">${cart[p.id]}</b>
@@ -358,7 +370,7 @@ $('paid').onclick=async()=>{
 };
 $('again').onclick=()=>{cart.d1=cart.d2=cart.bd=0;$('nm').value=$('wa').value='';resetPay();renderProducts();renderBar();show('shop');loadStock()};
 
-$('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS a.n. Yudi">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
+$('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS A.N. LACOSTAR'26 DIGITAL & KR ">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
 renderProducts();renderBar();
 $('limnote').textContent='Maksimal pembelian '+MAX_PER_DAY+' tiket per hari.';
 loadStock();setInterval(loadStock,60000);

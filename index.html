@@ -256,7 +256,7 @@ function renderProducts(){
  <article class="ticket ${p.cls}${soldOut(p)?' soldout':''}">
   <div class="main-t">
    <h2>${p.name}</h2><p>${p.date}</p><p>${p.desc}</p>
-   <div class="price${p.was?' deal':''}">${p.was?`<span class="tab">&#10022; SPECIAL DISCOUNT</span><s class="was">${rp(p.was)}</s><span class="now">${rp(p.price)}</span><span class="save">HEMAT ${rp(p.was-p.price)}</span>`:rp(p.price)}</div>
+   <div class="price${p.was?' deal':''}">${p.was?`<span class="tab">&#10022; SPECIAL PRIZE</span><s class="was">${rp(p.was)}</s><span class="now">${rp(p.price)}</span><span class="save">HEMAT ${rp(p.was-p.price)}</span>`:rp(p.price)}</div>
    <div class="stk${stkLow(p)?' low':''}">${stk(p)}</div>
    <div class="qty">
     <button data-m="${p.id}" aria-label="Kurangi ${p.name}">−</button><b id="q-${p.id}">${cart[p.id]}</b>

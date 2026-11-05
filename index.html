@@ -182,7 +182,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
       <div id="qrwrap" class="hide">
         <div class="qris">
           <div id="qrbox"></div>
-          <b>A.N. LACOSTAR'26 DIGITAL & KR</b>
+          <b>LACOSTAR'26</b>
           <div id="qrtotal" style="font-size:1.3rem;font-weight:800"></div>
         </div>
         <p class="sub" id="qrhint" style="margin:14px 0">Bayar <b>persis sesuai total</b> (termasuk kode unik di angka paling belakang), lalu tekan tombol di bawah.</p>
@@ -373,7 +373,7 @@ $('paid').onclick=async()=>{
 };
 $('again').onclick=()=>{cart.d1=cart.d2=cart.bd=0;$('nm').value=$('wa').value='';resetPay();renderProducts();renderBar();show('shop');loadStock()};
 
-$('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS A.N. LACOSTAR'26 DIGITAL & KR ">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
+$('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS LACOSTAR'26 ">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
 renderProducts();renderBar();
 $('limnote').textContent='Maksimal pembelian '+MAX_PER_DAY+' tiket per hari.';
 loadStock();setInterval(loadStock,60000);

@@ -95,7 +95,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 @media(prefers-reduced-motion:reduce){.ticket::before{animation:none}.ticket{transition:none}}
 .main-t{position:relative;z-index:1;padding-right:32px}
 .main-t::before{content:"";position:absolute;z-index:-1;inset:8px calc(var(--n)/2 + 6px) 8px 8px;border:1.5px solid currentColor;border-radius:12px;opacity:.22;pointer-events:none}
-.main-t::after{content:"\2605";position:absolute;z-index:-1;right:16px;bottom:-26px;font-size:8.5rem;line-height:1;opacity:.10;pointer-events:none}
+.main-t::after{content:"";position:absolute;z-index:-1;right:8px;bottom:-36px;width:176px;height:176px;background:url(LOGO.png) center/contain no-repeat;opacity:.2;pointer-events:none}
 .main-t h2::before{content:"ADMIT ONE \00B7  LACOSTAR'26";display:block;font-size:.62rem;font-weight:700;letter-spacing:.22em;opacity:.7;margin-bottom:8px}
 .ticket.bd .main-t h2::before{content:"ADMIT TWO \00B7  2 DAYS PASS"}
 .ticket.bd h2{background:linear-gradient(180deg,#fff3c4,#ffd25a 55%,#e0a21a);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -112,11 +112,17 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 .stub::after{content:"";flex:none;width:46px;height:30px;opacity:.8;background:repeating-linear-gradient(90deg,currentColor 0 2px,transparent 2px 4px,currentColor 4px 5px,transparent 5px 8px,currentColor 8px 11px,transparent 11px 12px)}
 @media(max-width:520px){
  .main-t{padding-right:26px}
- .main-t::after{font-size:6rem;bottom:-18px}
+ .main-t::after{width:120px;height:120px;right:4px;bottom:-24px}
  .main-t h2::before{font-size:.55rem;margin-bottom:6px}
  .stub{gap:8px}
  .stub::after{width:34px;height:22px}
 }
+/* motif vertikal di stub */
+.stub::before{content:"";position:absolute;inset:0;z-index:-1;background:url(Lacostar-26.png) center/auto 100% no-repeat;opacity:.5;pointer-events:none}
+.ticket.d1 .stub::before{opacity:.45}
+.ticket.d2 .stub::before{opacity:.28}
+.ticket.bd .stub::before{opacity:.5}
+.ticket.soldout .stub::before,.ticket.soldout .main-t::after{filter:grayscale(1)}
 /* stok */
 .stk{display:block;width:fit-content;max-width:100%;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin:-4px 0 12px;padding:3px 11px;border:1.5px solid currentColor;border-radius:999px;opacity:.95}
 .stk::before{content:"\25CF";margin-right:7px;font-size:.7em;vertical-align:middle}

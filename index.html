@@ -96,6 +96,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 .main-t{position:relative;z-index:1;padding-right:32px}
 .main-t::before{content:"";position:absolute;z-index:-1;inset:8px calc(var(--n)/2 + 6px) 8px 8px;border:1.5px solid currentColor;border-radius:12px;opacity:.22;pointer-events:none}
 .main-t::after{content:"";position:absolute;z-index:-1;right:8px;bottom:-36px;width:176px;height:176px;background:url(LOGO.png) center/contain no-repeat;opacity:.2;pointer-events:none}
+.ticket.bd .main-t::after{width:240px;height:240px;right:22px;bottom:-30px;opacity:.22}
 .main-t h2::before{content:"ADMIT ONE \00B7  LACOSTAR'26";display:block;font-size:.62rem;font-weight:700;letter-spacing:.22em;opacity:.7;margin-bottom:8px}
 .ticket.bd .main-t h2::before{content:"ADMIT TWO \00B7  2 DAYS PASS"}
 .ticket.bd h2{background:linear-gradient(180deg,#fff3c4,#ffd25a 55%,#e0a21a);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -113,6 +114,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 @media(max-width:520px){
  .main-t{padding-right:26px}
  .main-t::after{width:120px;height:120px;right:4px;bottom:-24px}
+ .ticket.bd .main-t::after{width:165px;height:165px;right:0;bottom:-20px}
  .main-t h2::before{font-size:.55rem;margin-bottom:6px}
  .stub{gap:8px}
  .stub::after{width:34px;height:22px}

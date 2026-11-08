@@ -216,7 +216,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 
 <div class="bar" id="bar"><div class="bar-in">
   <div class="info"><span id="count">Keranjang kosong</span><span class="t" id="tot"></span></div>
-  <button class="btn" id="go" disabled>Lanjut bayar</button>
+  <button class="btn" id="go" disabled>PAYMENT!</button>
 </div></div>
 
 <script>
@@ -278,7 +278,7 @@ function renderProducts(){
 }
 function renderBar(){
  const n=qty();
- $('count').textContent=n?`${n} tiket di keranjang`:'Keranjang kosong';
+ $('count').textContent=n?`${n} ticket di pilih`:'Keranjang kosong';
  $('tot').textContent=n?rp(total()):'';
  $('go').disabled=!n;
 }

@@ -167,8 +167,8 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 
 <!-- HALAMAN 1: PRODUK -->
 <section id="v-shop">
-  <h1>Beli tiket Lacostar'26<br>Day 1 &amp; Day 2</h1>
-  <p class="sub">Pilih jumlah tiket. Mau datang dua hari? Ambil Bundle Package (Day 1 + Day 2) biar lebih hemat. </p>
+  <h1>TIKET LACOSTAR'26<br></h1>
+  <p class="sub">Pembelian ticket VIA online,anti ngantri </p>
   <p class="lim-note" id="limnote"></p>
   <div class="grid" id="products"></div>
 </section>
@@ -229,7 +229,7 @@ const PRODUCTS=[
 const QRIS_SRC='qris.jpg';          // isi dengan gambar QRIS (URL atau data:image/...)
 const SHEET_URL='https://script.google.com/macros/s/AKfycbylcF3eYedWsJpHr3XOpjIP99Cvk6X_9B9kyRrC2CLu2KxCPrUsOkexTi7woC8uLJWjoQ/exec';  // URL Web App Apps Script (berakhiran /exec)
 const QRIS_PAYLOAD="00020101021126610014COM.GO-JEK.WWW01189360091431043864150210G1043864150303UMI51440014ID.CO.QRIS.WWW0215ID10243350654950303UMI5204899953033605802ID5925LACOSTAR'26, Digital & Kr6006GRESIK61056111162070703A016304F5BC"; // isi teks QRIS statis agar nominal otomatis terisi; kosongkan ("") untuk pakai gambar saja
-const WA_NUMBER='62895405042924';   // nomor WhatsApp penjual, format 62...
+const WA_NUMBER='6289526607083';   // nomor WhatsApp penjual, format 62...
 const MAX_PER_DAY=10;   // maksimal tiket per HARI per pesanan (Bundle dihitung 1 untuk Day 1 + 1 untuk Day 2). Samakan dengan MAX_QTY di Code.gs
 // =================================================qf
 const rp=n=>'Rp '+n.toLocaleString('id-ID');
@@ -383,7 +383,7 @@ $('again').onclick=()=>{cart.d1=cart.d2=cart.bd=0;$('nm').value=$('wa').value=''
 
 $('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS LACOSTAR'26 ">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
 renderProducts();renderBar();
-$('limnote').textContent='Maksimal pembelian '+MAX_PER_DAY+' tiket per hari.';
+$('limnote').textContent='Satu device,satu transaksi!';
 loadStock();setInterval(loadStock,60000);
 </script>
 </body>

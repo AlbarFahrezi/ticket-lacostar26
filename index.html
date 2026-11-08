@@ -185,8 +185,8 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
       <div class="err" id="err"></div>
     </div>
     <div class="card">
-      <h2 style="margin-top:0">Bayar dengan QRIS</h2>
-      <button class="btn" id="mk" style="width:100%">Buat pesanan &amp; tampilkan QRIS</button>
+      <h2 style="margin-top:0">Payment now!</h2>
+      <button class="btn" id="mk" style="width:100%">Lanjutkan pembayaran (QRIS)</button>
       <div id="qrwrap" class="hide">
         <div class="qris">
           <div id="qrbox"></div>
@@ -298,7 +298,7 @@ function resetPay(){
  ORDER=null;BUYER=null;
  $('nm').disabled=$('wa').disabled=false;$('cart').classList.remove('locked');
  $('qrwrap').classList.add('hide');$('mk').classList.remove('hide');
- $('mk').disabled=false;$('mk').textContent='Buat pesanan & tampilkan QRIS';$('err').textContent='';
+ $('mk').disabled=false;$('mk').textContent='Lanjutkan pembayaran (QRIS)';$('err').textContent='';
 }
 const HINT_STATIC=$('qrhint').innerHTML;
 function crc16(s){let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let k=0;k<8;k++)c=(c&0x8000)?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF}return c.toString(16).toUpperCase().padStart(4,'0')}
@@ -358,7 +358,7 @@ $('mk').onclick=async()=>{
   if(SHEET_URL){const j=await api({action:'create',nama:nm,wa,day1:cart.d1,day2:cart.d2,bundle:cart.bd});ORDER={code:j.code,total:j.total}}
   else ORDER={code:'TKT-'+Date.now().toString(36).toUpperCase().slice(-6),total:total()};
  }catch(e){
-  $('err').textContent='Gagal membuat pesanan: '+e.message;b.disabled=false;b.textContent='Buat pesanan & tampilkan QRIS';if(/stok/i.test(e.message))loadStock();return;
+  $('err').textContent='Gagal membuat pesanan: '+e.message;b.disabled=false;b.textContent='Lanjutkan pembayaran (QRIS)';if(/stok/i.test(e.message))loadStock();return;
  }
  BUYER={nm,wa};
  $('nm').disabled=$('wa').disabled=true;$('cart').classList.add('locked');

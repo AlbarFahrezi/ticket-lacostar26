@@ -56,7 +56,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 .qris{background:#fff;color:#111;border-radius:14px;padding:16px;text-align:center;max-width:320px;margin:0 auto}
 .qris img{width:100%;display:block}
 .ph{aspect-ratio:1;border:3px dashed #999;display:flex;align-items:center;justify-content:center;color:#666;padding:20px;font-size:.9rem}
-.qris b{display:block;margin-top:10px}
+.qris b{display:block;margin-top:12px;font-size:1.4rem;font-weight:800;letter-spacing:.05em}
 .err{color:#ff9bb0;font-size:.9rem;min-height:1.2em}
 .hide{display:none}
 .locked .x{display:none}
@@ -175,10 +175,10 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 
 <!-- HALAMAN 2: KERANJANG & PEMBAYARAN -->
 <section id="v-pay" class="hide">
-  <h1>Pembayaran</h1>
+  <h1>PAYMENT DETAILS</h1>
   <div class="two">
     <div class="card">
-      <h2 style="margin-top:0">Keranjang</h2>
+      <h2 style="margin-top:0">Ticket yang dipilih:</h2>
       <div id="cart"></div>
       <label for="nm">Nama pemesan</label><input id="nm" autocomplete="name">
       <label for="wa">Nomor WhatsApp</label><input id="wa" inputmode="tel" autocomplete="tel" placeholder="08xxxxxxxxxx">
@@ -194,7 +194,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
           <div id="qrtotal" style="font-size:1.3rem;font-weight:800"></div>
         </div>
         <p class="sub" id="qrhint" style="margin:14px 0">Bayar <b>persis sesuai total</b> (termasuk kode unik di angka paling belakang), lalu tekan tombol di bawah.</p>
-        <button class="btn" id="paid" style="width:100%">Saya sudah bayar</button>
+        <button class="btn" id="paid" style="width:100%">Sudah bayar? konfirmasi!</button>
       </div>
       <button class="btn alt" id="back" style="width:100%;margin-top:10px">Kembali pilih tiket</button>
     </div>
@@ -224,7 +224,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 const PRODUCTS=[
  {id:'d1',name:'Day 1',date:'Sabtu, 14 November',desc:'Tingkat SMP/MTS/sederajat',price:20000,cls:'d1'},
  {id:'d2',name:'Day 2',date:'Minggu, 15 November',desc:'Tingkat SMA/SMK/MA/sederajat',price:20000,cls:'d2'},
- {id:'bd',name:"LACOSTAR'26 BUNDLE PACKAGE",tag:'BUNDLE',date:'',desc:'Lebih HEMAT, sekali transaksi = bisa akses semua hari✨',price:35000,was:40000,cls:'bd'}
+ {id:'bd',name:"LACOSTAR'26 BUNDLE PACKAGE",tag:'BUNDLE',date:'',desc:'Lebih HEMAT, sekali transaksi = bisa akses semua hari✨',price:35000,was:40000,label:'BUNDLE PACKAGE',cls:'bd'}
 ];
 const QRIS_SRC='qris.jpg';          // isi dengan gambar QRIS (URL atau data:image/...)
 const SHEET_URL='https://script.google.com/macros/s/AKfycbylcF3eYedWsJpHr3XOpjIP99Cvk6X_9B9kyRrC2CLu2KxCPrUsOkexTi7woC8uLJWjoQ/exec';  // URL Web App Apps Script (berakhiran /exec)
@@ -282,9 +282,11 @@ function renderBar(){
  $('tot').textContent=n?rp(total()):'';
  $('go').disabled=!n;
 }
+// tulisan di daftar 'Ticket yang dipilih': 'Day 1 x 1 Ticket', 'Day 2 x 5 Tickets', Bundle: 'BUNDLE PACKAGE x 1'
+const cartLabel=p=>{const n=cart[p.id];return p.label?`${p.label} x ${n}`:`${p.name} x ${n} ${n>1?'Tickets':'Ticket'}`};
 function renderCart(){
  let h=PRODUCTS.filter(p=>cart[p.id]).map(p=>`
-  <div class="row"><span>Tiket ${p.name} × ${cart[p.id]}</span>
+  <div class="row"><span>${cartLabel(p)}</span>
   <span>${rp(p.price*cart[p.id])} <button class="x" data-r="${p.id}">hapus</button></span></div>`).join('');
  if(ORDER){h+=`<div class="row"><span>Subtotal</span><span>${rp(total())}</span></div>
   <div class="row"><span>Kode unik</span><span>${rp(ORDER.total-total())}</span></div>
@@ -319,7 +321,7 @@ function showQR(){
  if(QRIS_PAYLOAD&&window.QRCode){
   box.innerHTML='';
   new QRCode(box,{text:qrisDynamic(QRIS_PAYLOAD,ORDER.total),width:300,height:300,correctLevel:QRCode.CorrectLevel.M});
-  $('qrhint').innerHTML='Nominal akan terisi otomatis saat QRIS di-scan. Pastikan jumlahnya sama dengan total, lalu tekan tombol di bawah.';
+  $('qrhint').innerHTML='Nominal sudah otomatis saat QRIS ter-scan! pastikan jumlah bayar sesuai...!';
  }else{
   box.innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS">`:'<div class="ph">Taruh gambar QRIS di sini (variabel QRIS_SRC)</div>';
   $('qrhint').innerHTML=HINT_STATIC;
@@ -344,8 +346,9 @@ $('back').onclick=()=>{
 };
 $('cart').addEventListener('click',e=>{
  const r=e.target.dataset.r;if(!r||ORDER)return;cart[r]=0;
- if(!qty()){renderBar();show('shop');return}
- renderCart();renderBar();
+ renderProducts();renderBar();   // segarkan jumlah di kartu tiket (supaya tidak tersisa angka lama)
+ if(!qty()){show('shop');return}
+ renderCart();
 });
 
 // Langkah 1: buat pesanan -> server hitung total unik & simpan (Menunggu pembayaran)
@@ -370,8 +373,8 @@ $('mk').onclick=async()=>{
 $('paid').onclick=async()=>{
  const b=$('paid');b.disabled=true;b.textContent='Menyimpan...';
  try{if(SHEET_URL)await api({action:'paid',code:ORDER.code})}
- catch(e){$('err').textContent='Gagal menyimpan: '+e.message;b.disabled=false;b.textContent='Saya sudah bayar';return}
- b.disabled=false;b.textContent='Saya sudah bayar';
+ catch(e){$('err').textContent='Gagal menyimpan: '+e.message;b.disabled=false;b.textContent='Sudah bayar? konfirmasi!';return}
+ b.disabled=false;b.textContent='Sudah bayar? konfirmasi!';
  const lines=PRODUCTS.filter(p=>cart[p.id]).map(p=>`${p.name} × ${cart[p.id]}`);
  $('code').textContent=ORDER.code;
  $('sum').innerHTML=lines.map(l=>`<div class="row"><span>${l}</span></div>`).join('')+`<div class="row total"><span>Total dibayar</span><span>${rp(ORDER.total)}</span></div>`;

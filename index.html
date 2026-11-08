@@ -239,16 +239,16 @@ const total=()=>PRODUCTS.reduce((s,p)=>s+p.price*cart[p.id],0);
 const qty=()=>PRODUCTS.reduce((s,p)=>s+cart[p.id],0);
 
 // ===== STOK (dari server). Bundle memotong stok Day 1 DAN Day 2 =====
-let STOCK=null;   // sisa stok dari server {d1,d2}; null = belum dimuat / tanpa SHEET_URL (tanpa batas)
-const avail=id=>{if(!STOCK)return Infinity;const a1=STOCK.d1-cart.d1-cart.bd,a2=STOCK.d2-cart.d2-cart.bd;return id==='d1'?a1:id==='d2'?a2:Math.min(a1,a2)};
-const soldOut=p=>{if(!STOCK)return false;return p.id==='d1'?STOCK.d1<=0:p.id==='d2'?STOCK.d2<=0:Math.min(STOCK.d1,STOCK.d2)<=0};
+let STOCK=null;   // sisa stok dari server {d1,d2,bd}; null = belum dimuat / tanpa SHEET_URL (tanpa batas)
+const avail=id=>{if(!STOCK)return Infinity;const a1=STOCK.d1-cart.d1-cart.bd,a2=STOCK.d2-cart.d2-cart.bd,ab=STOCK.bd-cart.bd;return id==='d1'?a1:id==='d2'?a2:Math.min(a1,a2,ab)};
+const soldOut=p=>{if(!STOCK)return false;return p.id==='d1'?STOCK.d1<=0:p.id==='d2'?STOCK.d2<=0:Math.min(STOCK.d1,STOCK.d2,STOCK.bd)<=0};
 const stk=p=>{const a=avail(p.id);return a===Infinity?'':soldOut(p)?'Terjual habis':a<=0?'Semua stok ada di keranjangmu':(a<=10?'Tinggal ':'Sisa ')+a+(p.id==='bd'?' paket':' tiket')};
 const stkLow=p=>{const a=avail(p.id);return a!==Infinity&&a<=10};
-function clampCart(){if(!STOCK)return;for(const id of ['bd','d1','d2'])while(cart[id]>0&&(STOCK.d1<cart.d1+cart.bd||STOCK.d2<cart.d2+cart.bd))cart[id]--}
+function clampCart(){if(!STOCK)return;while(cart.bd>STOCK.bd)cart.bd--;for(const id of ['bd','d1','d2'])while(cart[id]>0&&(STOCK.d1<cart.d1+cart.bd||STOCK.d2<cart.d2+cart.bd))cart[id]--}
 async function loadStock(){
  if(!SHEET_URL||ORDER)return;
  try{
-  const j=await api({action:'stock'});STOCK={d1:j.d1,d2:j.d2};clampCart();renderProducts();renderBar();
+  const j=await api({action:'stock'});STOCK={d1:j.d1,d2:j.d2,bd:(j.bd==null?Infinity:j.bd)};clampCart();renderProducts();renderBar();
   if(!$('v-pay').classList.contains('hide')){if(qty())renderCart();else show('shop')}
  }catch(e){}
 }

@@ -378,7 +378,9 @@ $('paid').onclick=async()=>{
  const lines=PRODUCTS.filter(p=>cart[p.id]).map(p=>`${p.name} × ${cart[p.id]}`);
  $('code').textContent=ORDER.code;
  $('sum').innerHTML=lines.map(l=>`<div class="row"><span>${l}</span></div>`).join('')+`<div class="row total"><span>Lunas</span><span>${rp(ORDER.total)}</span></div>`;
- const msg=`Halo min, saya ${BUYER.nm}. Kode ${ORDER.code}: ${lines.join(', ')}. Total ${rp(ORDER.total)}. Berikut bukti pembayaran QR.`;
+ // isi pesan WhatsApp ke panitia (tiap ticket satu baris)
+ const items=PRODUCTS.filter(p=>cart[p.id]).map(p=>{const n=cart[p.id];return (p.label?`${p.label} × ${n}`:`${p.name} × ${n} ${n>1?'Tickets':'Ticket'}`)+' '});
+ const msg=[`Hallooo, i'am ${BUYER.nm}`,`payment ticket LACOSTAR'26 baru saja success!`,`Kode ${ORDER.code}`,...items,`Total ${rp(ORDER.total)}  `,`Berikut bukti pembayaran QRIS.`,`(lgsg kirim bukti ss bayarnya)`].join('\n');
  $('wal').href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
  show('done');
 };

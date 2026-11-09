@@ -204,12 +204,12 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 <!-- HALAMAN 3: KONFIRMASI -->
 <section id="v-done" class="hide">
   <div class="card" style="max-width:520px;margin:30px auto">
-    <h1 class="ok" style="font-size:2.2rem">Pesanan tercatat</h1>
+    <h1 class="ok" style="font-size:2.2rem">Selamat, Ticket kamu aman!</h1>
     <p>Kode pesanan: <b id="code"></b></p>
     <div id="sum"></div>
-    <p class="sub">Kirim bukti pembayaran ke penjual agar tiket dikonfirmasi.</p>
+    <p class="sub">Wajib kirim bukti payment ke panitia, agar ticket dikonfirmasi!</p>
     <div class="actions"><a id="wal" class="btn" target="_blank" rel="noopener">Kirim bukti via WhatsApp</a>
-    <button class="btn alt" id="again">Pesan lagi</button></div>
+    <button class="btn alt" id="again">TUTUP!</button></div>
   </div>
 </section>
 </main>
@@ -359,7 +359,7 @@ $('mk').onclick=async()=>{
  const b=$('mk');b.disabled=true;b.textContent='Membuat pesanan...';
  try{
   if(SHEET_URL){const j=await api({action:'create',nama:nm,wa,day1:cart.d1,day2:cart.d2,bundle:cart.bd});ORDER={code:j.code,total:j.total}}
-  else ORDER={code:'TKT-'+Date.now().toString(36).toUpperCase().slice(-6),total:total()};
+  else ORDER={code:'TKTLCSTR26-'+Date.now().toString(36).toUpperCase().slice(-6),total:total()};
  }catch(e){
   $('err').textContent='Gagal membuat pesanan: '+e.message;b.disabled=false;b.textContent='Lanjutkan pembayaran (QRIS)';if(/stok/i.test(e.message))loadStock();return;
  }
@@ -377,12 +377,14 @@ $('paid').onclick=async()=>{
  b.disabled=false;b.textContent='Sudah bayar? konfirmasi!';
  const lines=PRODUCTS.filter(p=>cart[p.id]).map(p=>`${p.name} × ${cart[p.id]}`);
  $('code').textContent=ORDER.code;
- $('sum').innerHTML=lines.map(l=>`<div class="row"><span>${l}</span></div>`).join('')+`<div class="row total"><span>Total dibayar</span><span>${rp(ORDER.total)}</span></div>`;
+ $('sum').innerHTML=lines.map(l=>`<div class="row"><span>${l}</span></div>`).join('')+`<div class="row total"><span>Lunas</span><span>${rp(ORDER.total)}</span></div>`;
  const msg=`Halo min, saya ${BUYER.nm}. Kode ${ORDER.code}: ${lines.join(', ')}. Total ${rp(ORDER.total)}. Berikut bukti pembayaran QR.`;
  $('wal').href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
  show('done');
 };
-$('again').onclick=()=>{cart.d1=cart.d2=cart.bd=0;$('nm').value=$('wa').value='';resetPay();renderProducts();renderBar();show('shop');loadStock()};
+// TUTUP!: langsung keluar dari website. window.close() hanya berhasil kalau tab dibuka lewat script,
+// jadi kalau tab masih terbuka, pindah ke halaman kosong.
+$('again').onclick=()=>{window.close();setTimeout(()=>{location.replace('about:blank')},250)};
 
 $('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS LACOSTAR'26 ">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
 renderProducts();renderBar();

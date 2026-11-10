@@ -7,6 +7,21 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#0b1230">
+<script>
+// PENGAMAN PERANGKAT LEMAH (mis. iPhone lawas / browser di dalam aplikasi): kalau pemuatan sebelumnya macet atau crash,
+// halaman otomatis memakai TAMPILAN RINGAN. Manual: tambahkan ?lite=1 di akhir link. Reset: ?lite=0
+(function(){try{
+ var d=document.documentElement,s=location.search,ss=sessionStorage,ls=localStorage;
+ if(/[?&]lite=0/.test(s)){ls.removeItem('tk_lite');ss.removeItem('tk_boot')}
+ var crashed=ss.getItem('tk_boot')==='1';   // penanda belum dihapus = pemuatan sebelumnya tidak berakhir normal
+ if(/[?&]lite=1/.test(s)||ls.getItem('tk_lite')==='1'||crashed){d.className+=' lite';if(crashed)ls.setItem('tk_lite','1')}
+ ss.setItem('tk_boot','1');
+ var ok=function(){try{ss.removeItem('tk_boot')}catch(e){}};
+ addEventListener('pagehide',ok);
+ document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')ok()});
+ setTimeout(ok,30000);
+}catch(e){}})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0b1230;--panel:#16204a;--ink:#f6f3ff;--mute:#aeb7e6;--d1:#ffc93c;--d2:#ff7a9c;--dark:#0b1230;--ok:#7be0a8;
@@ -159,6 +174,13 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 .ticket.soldout .tab,.ticket.soldout .save,.ticket.soldout .was{display:none}
 .ticket.soldout .price.deal{background:none;border-color:transparent;box-shadow:none;padding:0;margin:14px 0 10px}
 @media(max-width:520px){.price.deal{margin:26px 0 10px;padding:14px 14px 10px;gap:4px 12px}.now{font-size:1.85rem}}
+/* MODE RINGAN: tanpa bayangan berat, animasi, mask, dan gambar hiasan besar */
+html.lite #products{filter:none}
+html.lite .ticket{-webkit-mask:none;mask:none;transition:none}
+html.lite .ticket::before{animation:none;background:radial-gradient(circle at 1px 1px,var(--dot) 1.2px,transparent 1.7px) 0 0/12px 12px}
+html.lite .tab{animation:none}
+html.lite body::before,html.lite .main-t::after,html.lite .stub::before{display:none}
+html.lite .ticket:hover{transform:none}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -168,7 +190,7 @@ input{width:100%;padding:12px;border-radius:10px;border:2px solid #ffffff33;back
 <!-- HALAMAN 1: PRODUK -->
 <section id="v-shop">
   <h1>TICKETS LACOSTAR'26<br></h1>
-  <p class="sub">pembelian ticket VIA ONLINE, anti ngantri....😉</p>
+  <p class="sub">Pembelian ticket VIA online,anti ngantri </p>
   <p class="lim-note" id="limnote"></p>
   <div class="grid" id="products"></div>
 </section>
@@ -227,7 +249,7 @@ const PRODUCTS=[
  {id:'bd',name:"LACOSTAR'26 BUNDLE PACKAGE",tag:'BUNDLE',date:'',desc:'Lebih HEMAT, sekali transaksi = bisa akses semua hari✨',price:35000,was:40000,label:'BUNDLE PACKAGE',cls:'bd'}
 ];
 const QRIS_SRC='qris.jpg';          // isi dengan gambar QRIS (URL atau data:image/...)
-const SHEET_URL='https://script.google.com/macros/s/AKfycbylcF3eYedWsJpHr3XOpjIP99Cvk6X_9B9kyRrC2CLu2KxCPrUsOkexTi7woC8uLJWjoQ/exec';  // URL Web App Apps Script (berakhiran /exec ya)
+const SHEET_URL='https://script.google.com/macros/s/AKfycbylcF3eYedWsJpHr3XOpjIP99Cvk6X_9B9kyRrC2CLu2KxCPrUsOkexTi7woC8uLJWjoQ/exec';  // URL Web App Apps Script (berakhiran /exec)
 const QRIS_PAYLOAD="00020101021126610014COM.GO-JEK.WWW01189360091431043864150210G1043864150303UMI51440014ID.CO.QRIS.WWW0215ID10243350654950303UMI5204899953033605802ID5925LACOSTAR'26, Digital & Kr6006GRESIK61056111162070703A016304F5BC"; // isi teks QRIS statis agar nominal otomatis terisi; kosongkan ("") untuk pakai gambar saja
 const WA_NUMBER='6289526607083';   // nomor WhatsApp penjual, format 62...
 const MAX_PER_DAY=10;   // maksimal tiket per HARI per pesanan (Bundle dihitung 1 untuk Day 1 + 1 untuk Day 2). Samakan dengan MAX_QTY di Code.gs
@@ -327,9 +349,25 @@ function showQR(){
   $('qrhint').innerHTML=HINT_STATIC;
  }
 }
-async function api(body){
- const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});
- const j=await r.json();if(!j.ok)throw new Error(j.error||'Gagal');return j;
+// Kirim ke Apps Script. Kalau jaringan putus / sinyal jelek / server sibuk, otomatis dicoba lagi (opt.retries kali).
+// Aman diulang karena 'create' memakai kode pesanan yang sama (server tidak membuat baris dobel).
+async function api(body,opt){
+ const tries=(opt&&opt.retries)||0;let last;
+ for(let i=0;i<=tries;i++){
+  try{
+   const ctl=typeof AbortController!=='undefined'?new AbortController():null,t=setTimeout(()=>{if(ctl)ctl.abort()},(opt&&opt.timeout)||25000);
+   let r;try{r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),signal:ctl?ctl.signal:undefined})}finally{clearTimeout(t)}
+   const j=await r.json();
+   if(!j.ok){const e=new Error(j.error||'Gagal');e.server=true;e.busy=!!j.busy;throw e}
+   return j;
+  }catch(e){
+   last=e;
+   if((e.server&&!e.busy)||i===tries)break;      // ditolak server (mis. stok habis) = jangan diulang
+   if(opt&&opt.onRetry)opt.onRetry(i+2,tries+1);
+   await new Promise(r=>setTimeout(r,1500*(i+1)));
+  }
+ }
+ throw last;
 }
 
 $('products').addEventListener('click',e=>{
@@ -341,7 +379,7 @@ $('products').addEventListener('click',e=>{
 });
 $('go').onclick=()=>{resetPay();renderCart();show('pay')};
 $('back').onclick=()=>{
- const o=ORDER;resetPay();show('shop');
+ const o=ORDER;if(PENDING&&SHEET_URL)api({action:'cancel',code:PENDING.code}).catch(()=>{});PENDING=null;resetPay();show('shop');
  if(o&&SHEET_URL)api({action:'cancel',code:o.code}).catch(()=>{}).then(loadStock);else loadStock();
 };
 $('cart').addEventListener('click',e=>{
@@ -351,19 +389,27 @@ $('cart').addEventListener('click',e=>{
  renderCart();
 });
 
+let PENDING=null;   // {code,sig}: kode pesanan yang sedang dicoba. Dipakai lagi kalau tombol ditekan ulang (anti-dobel)
+const newCode=()=>{const a=new Uint8Array(3);try{crypto.getRandomValues(a)}catch(_){for(let i=0;i<3;i++)a[i]=Math.floor(Math.random()*256)}return 'TKTLCSTR26-'+Array.from(a,x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()};
+const errText=e=>e.server?e.message:'Koneksi internet kamu kurang stabil. Tekan tombolnya sekali lagi ya, pesananmu tidak akan dobel.';
+
 // Langkah 1: buat pesanan -> server hitung total unik & simpan (Menunggu pembayaran)
 $('mk').onclick=async()=>{
  const nm=$('nm').value.trim(),wa=$('wa').value.trim();
  if(!nm||wa.replace(/\D/g,'').length<9){$('err').textContent='Isi nama dan nomor WhatsApp yang benar.';return}
  $('err').textContent='';
+ const sig=JSON.stringify([nm,wa,cart.d1,cart.d2,cart.bd]);
+ if(PENDING&&PENDING.sig!==sig){if(SHEET_URL)api({action:'cancel',code:PENDING.code}).catch(()=>{});PENDING=null}   // isi pesanan berubah -> lepas percobaan lama
+ if(!PENDING)PENDING={code:newCode(),sig};
  const b=$('mk');b.disabled=true;b.textContent='Membuat pesanan...';
  try{
-  if(SHEET_URL){const j=await api({action:'create',nama:nm,wa,day1:cart.d1,day2:cart.d2,bundle:cart.bd});ORDER={code:j.code,total:j.total}}
-  else ORDER={code:'TKTLCSTR26-'+Date.now().toString(36).toUpperCase().slice(-6),total:total()};
+  if(SHEET_URL){const j=await api({action:'create',code:PENDING.code,nama:nm,wa,day1:cart.d1,day2:cart.d2,bundle:cart.bd},{retries:2,onRetry:(n,m)=>{b.textContent=`Mencoba lagi (${n}/${m})...`}});ORDER={code:j.code,total:j.total}}
+  else ORDER={code:PENDING.code,total:total()};
  }catch(e){
-  $('err').textContent='Gagal membuat pesanan: '+e.message;b.disabled=false;b.textContent='Lanjutkan pembayaran (QRIS)';if(/stok/i.test(e.message))loadStock();return;
+  if(e.server)PENDING=null;   // ditolak server (mis. stok habis) = belum ada pesanan
+  $('err').textContent='Gagal membuat pesanan: '+errText(e);b.disabled=false;b.textContent='Lanjutkan pembayaran (QRIS)';if(e.server&&/stok/i.test(e.message))loadStock();return;
  }
- BUYER={nm,wa};
+ PENDING=null;BUYER={nm,wa};
  $('nm').disabled=$('wa').disabled=true;$('cart').classList.add('locked');
  $('qrtotal').textContent=rp(ORDER.total);showQR();
  b.classList.add('hide');$('qrwrap').classList.remove('hide');renderCart();
@@ -372,15 +418,15 @@ $('mk').onclick=async()=>{
 // Langkah 2: pembeli klaim sudah bayar -> status jadi Menunggu verifikasi
 $('paid').onclick=async()=>{
  const b=$('paid');b.disabled=true;b.textContent='Menyimpan...';
- try{if(SHEET_URL)await api({action:'paid',code:ORDER.code})}
- catch(e){$('err').textContent='Gagal menyimpan: '+e.message;b.disabled=false;b.textContent='Sudah bayar? konfirmasi!';return}
+ try{if(SHEET_URL)await api({action:'paid',code:ORDER.code},{retries:2,onRetry:(n,m)=>{b.textContent=`Mencoba lagi (${n}/${m})...`}})}
+ catch(e){$('err').textContent='Gagal menyimpan: '+errText(e);b.disabled=false;b.textContent='Sudah bayar? konfirmasi!';return}
  b.disabled=false;b.textContent='Sudah bayar? konfirmasi!';
  const lines=PRODUCTS.filter(p=>cart[p.id]).map(p=>`${p.name} × ${cart[p.id]}`);
  $('code').textContent=ORDER.code;
  $('sum').innerHTML=lines.map(l=>`<div class="row"><span>${l}</span></div>`).join('')+`<div class="row total"><span>Lunas</span><span>${rp(ORDER.total)}</span></div>`;
  // isi pesan WhatsApp ke panitia (tiap ticket satu baris)
- const items=PRODUCTS.filter(p=>cart[p.id]).map(p=>{const n=cart[p.id];return (p.label?`${p.label} × ${n}`:`${p.name} × ${n} ${n>1?'Tickets':'Ticket'}`)+' '});
- const msg=[`Hallooo, i'am ${BUYER.nm}`,`payment ticket LACOSTAR'26 baru saja success!`,`Kode ${ORDER.code}`,...items,`Total ${rp(ORDER.total)}  `,`Berikut bukti pembayaran QRIS.`,`(lgsg kirim bukti ss bayarnya)`].join('\n');
+ const items=PRODUCTS.filter(p=>cart[p.id]).map(p=>{const n=cart[p.id];return (p.label?`${p.label} × ${n}`:`${p.name} × ${n} ${n>1?'Tickets':'Ticket'}`)+' 🎟️'});
+ const msg=[`Hallooo, i'am ${BUYER.nm}🙌`,`payment ticket LACOSTAR'26 barusaja success!`,`Kode ${ORDER.code}`,...items,`Total ${rp(ORDER.total)} 💸`,`Berikut bukti pembayaran QRIS.`,`(lgsg kirim bukti ss bayarnya)`].join('\n');
  $('wal').href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
  show('done');
 };
@@ -390,7 +436,7 @@ $('again').onclick=()=>{window.close();setTimeout(()=>{location.replace('about:b
 
 $('qrbox').innerHTML=QRIS_SRC?`<img src="${QRIS_SRC}" alt="QRIS LACOSTAR'26 ">`:'<div class="ph">Taruh gambar QRIS Yudi di sini (variabel QRIS_SRC)</div>';
 renderProducts();renderBar();
-$('limnote').textContent='Satu device hanya untuk satu transaksi!';
+$('limnote').textContent='Satu device,satu transaksi!';
 loadStock();setInterval(loadStock,60000);
 </script>
 </body>
